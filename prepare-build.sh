@@ -23,15 +23,17 @@ declare -a layers=(
     "src/meta-qt5                  https://github.com/meta-qt5/meta-qt5                  mickledore"
     "src/meta-smartphone           https://github.com/shr-distribution/meta-smartphone   mickledore"
     "src/meta-asteroid             https://github.com/AsteroidOS/meta-asteroid           master"
-    "src/meta-asteroid-community   https://github.com/AsteroidOS/meta-asteroid-community master"
     "src/meta-smartwatch           https://github.com/AsteroidOS/meta-smartwatch.git     master"
+    "src/meta-anachrony            https://github.com/I-asked/meta-anachrony.git         main"
+    "src/meta-clang                https://github.com/kraj/meta-clang.git                mickledore"
 )
 
 declare -a layers_conf=(
+    "meta-clang"
     "meta-qt5"
     "oe-core/meta"
+    "meta-anachrony"
     "meta-asteroid"
-    "meta-asteroid-community"
     "meta-openembedded/meta-oe"
     "meta-openembedded/meta-multimedia"
     "meta-openembedded/meta-gnome"
@@ -44,14 +46,14 @@ declare -a layers_conf=(
 function printNoDeviceInfo {
     echo "Usage:"
     echo -e "Updating the sources:\t$ . ./prepare-build.sh update"
-    echo -e "Building AsteroidOS:\t$ . ./prepare-build.sh device\n"
+    echo -e "Building Anachrony:\t$ . ./prepare-build.sh device\n"
     echo -e "Available devices:\n"
 
     for device in ${devices[*]}; do
         echo "$device"
     done
 
-    echo -e "\nWiki - Building AsteroidOS: https://asteroidos.org/wiki/building-asteroidos/"
+    echo -e "\nWiki - Building Anachrony: https://anachrony.invalid/wiki/building-anachrony/"
 
     return 1
 }
@@ -116,7 +118,7 @@ function update_layer_config() {
 
 # Update layers in src/
 if [[ "$1" == "update" ]]; then
-    pull_dir . master
+    pull_dir . main
     for l in "${layers[@]}"; do
         if [ -n "$ZSH_VERSION" ]; then
             read -A layer <<< "$l"
@@ -171,10 +173,25 @@ else
         clone_dir "${layer[@]:0:1}" "${layer[@]:1:1}" "${layer[@]:2:1}" "${layer[@]:3:1}"
     done
 
+    pushd src/oe-core || exit 1
+      git fetch origin master
+      git checkout -f
+      git clean -fdx
+      git cherry-pick -X theirs -n 39e05f9b0fdc3f76f8b80a12989f78614bc9ea5c \
+                                   d1af583c290eb0cff5e36363f7531832a863a1a8 \
+                                   c3eba94ee44adcd3a0aa61f6b087c15c02e4697f \
+                                   ad4369d7901c1239e5f07473b1f2517edc4a23ea \
+                                   30637cdeb31fae02544fdc643a455d0ebb126ee6 \
+                                   d1386bbf2211c7616527e62f2f7b069a935b0d68 \
+                                   728c40b939c6af6358a483237298ca834cbb8993 \
+                                   84f46dd2503bb0ef238fef0097c66fda88f6cbda \
+                                   b98373075c6cc416bd0375b98b6bbdddf599d9a1
+    popd
+
     # Create local.conf and bblayers.conf on first run
     if [ ! -e build/conf/local.conf ]; then
         echo -e "\e[32mWriting build/conf/local.conf\e[39m"
-        echo 'DISTRO = "asteroid"
+        echo 'DISTRO = "anachrony"
 PACKAGE_CLASSES = "package_ipk"' >> build/conf/local.conf
     fi
 
@@ -192,13 +209,13 @@ BBLAYERS = " \
     cd src/oe-core
     . ./oe-init-build-env ../../build > /dev/null
 
-    echo "Welcome to the Asteroid compilation script.
+    echo "Welcome to the Anachrony compilation script.
 
 If you meet any issue you can report it to the project's github page:
-    https://github.com/AsteroidOS
+    https://github.com/I-asked
 
 You can now run the following command to get started with the compilation:
-    bitbake asteroid-image
+    bitbake anachrony-image
 
 Have fun!"
 fi

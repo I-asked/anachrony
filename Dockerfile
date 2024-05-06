@@ -1,6 +1,6 @@
 FROM ubuntu:focal
 
-# Install packages required to build AsteroidOS
+# Install packages required to build Anachrony
 # And add the en_US.utf8 locale because it is required and not installed by default in minimal Ubuntu images
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt upgrade -y && apt install -y git build-essential cpio diffstat gawk chrpath texinfo python3 python3-distutils wget shared-mime-info zstd liblz4-tool locales \
@@ -8,4 +8,4 @@ RUN apt update && apt upgrade -y && apt install -y git build-essential cpio diff
 
 ENV LANG en_US.utf8
 
-WORKDIR /asteroid
+WORKDIR /anachrony
